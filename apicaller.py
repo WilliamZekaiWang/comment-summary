@@ -14,26 +14,25 @@ def getUserData(name, outfile='Output.csv', write=False):
     @return: dataframe with columns ['comment id', 'subreddit', 'text', 'up-votes', 'edited']
     """
     # getting the instance
-    reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENTID'),
-                         client_secret=os.getenv('REDDIT_APIKEY'),
+    reddit = praw.Reddit(client_id=os.getenv('cid'),
+                         client_secret=os.getenv('sec'),
                          user_agent=f"Comment Trends (by /u/{os.getenv('REDDIT_USER')})"
                          )
 
     # go through every comment and add to a dataframe
-    df = pd.DataFrame(columns=['comment id', 'subreddit', 'text', 'up-votes', 'edited'])
+    df = pd.DataFrame(columns=['comment id', 'subreddit', 'text', 'up-votes', 'edited', 'date posted'])
     processed=0
     try:
         for comment in reddit.redditor(name).comments.new(limit=None):  # iterate through each comment one by one
             if isinstance(comment, MoreComments):
-                time.sleep(0.015)  # sleep to make sure we keep within the 60 requests per second limit for api call
                 pass
             else:
+                time.sleep(0.02)
                 processed += 1
-                df.loc[len(df)] = [comment.id, comment.subreddit, comment.body, comment.score, True if comment.edited != False else comment.edited]
+                df.loc[len(df)] = [comment.id, comment.subreddit, comment.body, comment.score, True if comment.edited != False else comment.edited, comment.created_utc]
                 print(f"{processed}, comments collected", end="\r")
-                time.sleep(0.015)
     except:
-        print("User doesn't exist")
+        print("User doesn't exist or your CID and SECRET is wrong")
         exit()
 
     print(f"Collected {processed} comments total")
