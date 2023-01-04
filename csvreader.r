@@ -7,10 +7,9 @@ sorted_subreddit <- sort(table(df$subreddit), decreasing=TRUE)
 
 # most commented on subreddit as bar graph
 top_subreddits <- function(sorted_subreddit){
-  """
-  writes out a jpeg of their most used subreddits from ggplot
-  @param: sorted_subreddit, a sorted table of frequency
-  """
+  #writes out a jpeg of their most used subreddits from ggplot
+  #param: sorted_subreddit, a sorted table of frequency
+  
   reddits <- names(sorted_subreddit)[1:5] # display top 5 
   counts <- as.numeric(sorted_subreddit)[1:5]
   tabled <- data.frame(reddits, counts) 
@@ -20,11 +19,12 @@ top_subreddits <- function(sorted_subreddit){
   bar <- ggplot(data = tabled,
                 aes(x=reddits,
                     y=counts))+
-    geom_bar(stat="identity")+
+    geom_bar(stat="identity", fill="skyblue4")+
     xlab("Subreddits")+
     ylab("Number of Comments")+
     ggtitle("User's Most Engaged Subreddits")+
-    theme(text = element_text(size = 5))
+    theme(text = element_text(size = 5))+
+    geom_text(aes(label=counts), vjust=1.25, size=3)
   
   # write out file
   ggsave("subreddits_summary.jpeg",
@@ -34,3 +34,4 @@ top_subreddits <- function(sorted_subreddit){
          unit = ("px")
          )
 }
+top_subreddits(sorted_subreddit)
