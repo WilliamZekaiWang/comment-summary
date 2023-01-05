@@ -1,7 +1,8 @@
-#will's stuff
-.r
+# R and Python outputs
 .csv
 .Rhistory
+.jpg
+.jpeg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
