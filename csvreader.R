@@ -1,5 +1,4 @@
 library(ggplot2)
-library(dplyr)
 
 
 # most commented on subreddit as bar graph
@@ -79,6 +78,9 @@ total_score_freqsubreddit <- function(df, howmany=5){
 
 
 karma_gained_boxplot_outlier <- function(df, howmany=5){
+  # plots box plot of their most popular subreddit scores/karma
+  # note this graph gets quite squished since random virality is common
+  # param: df, csv read the output from python
   
   # get top subreddits
   sorted_subreddit <- sort(table(df$subreddit), decreasing=TRUE)
@@ -95,15 +97,16 @@ karma_gained_boxplot_outlier <- function(df, howmany=5){
   # plot including outliers and write to file
   outliers <- ggplot(data = colagulated_df,
                    aes(x = subreddit, y = value, color=subreddit))+
-              geom_boxplot()+
+              geom_boxplot(lwd=0.125,
+                           outlier.size=0.125)+
               xlab("Subreddits")+
               ylab("Karma")+
               ggtitle("Subreddit 5 Number Summary")+
               theme(axis.text.x=element_blank(),
                     text = element_text(size = 5),
                     legend.key.size = unit(0.25, 'cm'))+
-              guides(fill=guide_legend(title="Subreddits"))+
-              geom_line(size=0.25)
+              guides(fill=guide_legend(title="Subreddits"))
+              
   
   ggsave("boxplot_summary_outliers.jpeg",
          plot = outliers,
@@ -114,6 +117,37 @@ karma_gained_boxplot_outlier <- function(df, howmany=5){
 }
 
 
+# ggplot means plot
+karma_mean_plot <- function(df, howmany = 5){
+  
+  # get top subreddits
+  sorted_subreddit <- sort(table(df$subreddit), decreasing=TRUE)
+  subreddits <- names(sorted_subreddit)[1:howmany]
+  
+  # make a new data frame with means and standard deviation
+  new_df <- data.frame()
+  for (item in subreddits) {
+    value <- df$up.votes[df$subreddit==item] 
+    new_df <- rbind(new_df, data.frame(mean(value), sd(value), item))
+  }
+  new_df <- setNames(new_df, c("mean", "sd", "subreddit"))
+  new_df$subreddits <- factor(new_df$subreddit, levels=new_df$subreddit)
+  
+  plot <- ggplot(data = new_df,
+          aes(x = subreddit, y = mean))+
+           geom_pointrange(aes(ymin=mean-sd, ymax=mean+sd), fill=c("#F8766D", "#B79F00", "#00BE67", "#619CFF", "#C77CFF"))+
+           xlab("Subreddits")+
+           ylab("Karma")+
+           ggtitle("Meanplot of Most Frequent Subreddit")+
+           theme(text = element_text(size = 5),
+                legend.key.size = unit(0.25, 'cm'))+
+          guides(fill=guide_legend(title="Subreddits"))+
+  ggsave("subreddit_karma_meanplot.jpeg",
+         plot = plot,
+         width = 800,
+         height = 800,
+         unit = ("px"))
+}
 
 
 main <- function(){
@@ -121,6 +155,7 @@ main <- function(){
   top_subreddits(df)
   total_score_freqsubreddit(df)
   karma_gained_boxplot_outlier(df)
+  karma_mean_plot(df)
 } 
 
 
