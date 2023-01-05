@@ -20,7 +20,7 @@ def getUserData(name, outfile='Output.csv', write=False):
                          )
 
     # go through every comment and add to a dataframe
-    df = pd.DataFrame(columns=['comment id', 'subreddit', 'text', 'up-votes', 'edited'])
+    df = pd.DataFrame(columns=['comment id', 'subreddit', 'text', 'up-votes', 'edited', 'date posted'])
     processed=0
     print("")
     try:
@@ -29,12 +29,13 @@ def getUserData(name, outfile='Output.csv', write=False):
                 time.sleep(0.020)  # sleep to make sure we keep within the 60 requests per second limit for api call
                 pass
             else:
+                time.sleep(0.02)
                 processed += 1
                 df.loc[len(df)] = [comment.id, comment.subreddit, comment.body, comment.score, True if comment.edited != False else comment.edited]
                 print(f"{processed}, comments collected", end="\r")  # show live count of collected comments
                 time.sleep(0.020)
     except:
-        print("User doesn't exist")
+        print("User doesn't exist or your CID and SECRET is wrong")
         exit()
 
     print(f"\nCollected {processed} comments total\n")
